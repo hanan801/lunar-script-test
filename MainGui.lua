@@ -16,18 +16,35 @@ local settings = {}
 local screenGui
 local mainFrame
 local currentTab = "Main"
-local tabs = {}
-local tabFrames = {}
+
+-- Color themes
+local Themes = {
+    dark = {
+        backgroundColor = Color3.fromRGB(30, 30, 40),
+        topBarColor = Color3.fromRGB(20, 20, 30),
+        buttonColor = Color3.fromRGB(45, 45, 60),
+        textColor = Color3.fromRGB(255, 255, 255)
+    },
+    ocean = {
+        backgroundColor = Color3.fromRGB(0, 120, 190),
+        topBarColor = Color3.fromRGB(0, 90, 150),
+        buttonColor = Color3.fromRGB(0, 140, 210),
+        textColor = Color3.fromRGB(255, 255, 255)
+    },
+    night = {
+        backgroundColor = Color3.fromRGB(15, 15, 25),
+        topBarColor = Color3.fromRGB(10, 10, 20),
+        buttonColor = Color3.fromRGB(40, 40, 60),
+        textColor = Color3.fromRGB(255, 255, 255)
+    }
+}
 
 function MainGui.Initialize(loadedModules, loadedSettings)
     modules = loadedModules
     settings = loadedSettings
     
     print("🎨 Initializing Main GUI...")
-    
-    -- Create GUI
     MainGui.CreateMainGUI()
-    
     return true
 end
 
@@ -42,7 +59,7 @@ function MainGui.CreateMainGUI()
     mainFrame = Instance.new("Frame")
     mainFrame.Size = UDim2.new(0, 500, 0, 350)
     mainFrame.Position = UDim2.new(0.5, -250, 0.5, -175)
-    mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    mainFrame.BackgroundColor3 = Themes.dark.backgroundColor
     mainFrame.Active = true
     mainFrame.Draggable = true
     mainFrame.Parent = screenGui
@@ -51,7 +68,7 @@ function MainGui.CreateMainGUI()
     corner.CornerRadius = UDim.new(0, 12)
     corner.Parent = mainFrame
     
-    -- UI Stroke dengan RGB mode
+    -- UI Stroke with RGB mode
     local stroke = Instance.new("UIStroke")
     stroke.Thickness = 3
     stroke.Parent = mainFrame
@@ -64,17 +81,14 @@ function MainGui.CreateMainGUI()
             stroke.Color = Color3.fromHSV(hue/360, 1, 1)
         end)
     else
-        stroke.Color = Color3.fromRGB(20, 20, 30)
+        stroke.Color = Themes.dark.topBarColor
     end
     
     -- Title bar
     MainGui.CreateTitleBar()
     
-    -- Tab buttons area
-    MainGui.CreateTabButtons()
-    
-    -- Content area
-    MainGui.CreateContentArea()
+    -- Tab system
+    MainGui.CreateTabSystem()
     
     -- Parent to player GUI
     screenGui.Parent = localPlayer:WaitForChild("PlayerGui")
@@ -86,7 +100,7 @@ end
 function MainGui.CreateTitleBar()
     local titleBar = Instance.new("Frame")
     titleBar.Size = UDim2.new(1, 0, 0, 30)
-    titleBar.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+    titleBar.BackgroundColor3 = Themes.dark.topBarColor
     titleBar.Parent = mainFrame
     
     local corner = Instance.new("UICorner")
@@ -156,12 +170,28 @@ function MainGui.CreateControlButtons(parent)
     -- Button events
     minimizeBtn.MouseButton1Click:Connect(function()
         mainFrame.Visible = false
+        -- Create minimize button
+        local miniBtn = Instance.new("ImageButton")
+        miniBtn.Size = UDim2.new(0, 45, 0, 45)
+        miniBtn.Position = UDim2.new(0.5, -22.5, 0, 10)
+        miniBtn.BackgroundColor3 = Themes.dark.backgroundColor
+        miniBtn.Image = "rbxthumb://type=Asset&id=112498285326629"
+        miniBtn.Parent = screenGui
+        
+        local miniCorner = Instance.new("UICorner")
+        miniCorner.CornerRadius = UDim.new(0, 8)
+        miniCorner.Parent = miniBtn
+        
+        miniBtn.MouseButton1Click:Connect(function()
+            mainFrame.Visible = true
+            miniBtn:Destroy()
+        end)
     end)
     
     maximizeBtn.MouseButton1Click:Connect(function()
         if mainFrame.Size == UDim2.new(0, 500, 0, 350) then
-            mainFrame.Size = UDim2.new(0, 600, 0, 400)
-            mainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
+            mainFrame.Size = UDim2.new(0, 600, 0, 450)
+            mainFrame.Position = UDim2.new(0.5, -300, 0.5, -225)
             maximizeBtn.Text = "❐"
         else
             mainFrame.Size = UDim2.new(0, 500, 0, 350)
@@ -175,15 +205,23 @@ function MainGui.CreateControlButtons(parent)
     end)
 end
 
-function MainGui.CreateTabButtons()
-    local tabContainer = Instance.new("Frame")
-    tabContainer.Size = UDim2.new(0.25, 0, 1, -30)
-    tabContainer.Position = UDim2.new(0, 0, 0, 30)
-    tabContainer.BackgroundTransparency = 1
-    tabContainer.Parent = mainFrame
+function MainGui.CreateTabSystem()
+    -- Left tabs container
+    local leftFrame = Instance.new("Frame")
+    leftFrame.Size = UDim2.new(0.25, 0, 1, -30)
+    leftFrame.Position = UDim2.new(0, 0, 0, 30)
+    leftFrame.BackgroundTransparency = 1
+    leftFrame.Parent = mainFrame
     
-    -- Define tabs
-    local tabList = {
+    -- Right content container
+    local rightFrame = Instance.new("Frame")
+    rightFrame.Size = UDim2.new(0.75, 0, 1, -30)
+    rightFrame.Position = UDim2.new(0.25, 0, 0, 30)
+    rightFrame.BackgroundTransparency = 1
+    rightFrame.Parent = mainFrame
+    
+    -- Create tabs
+    local tabs = {
         {Name = "Main", Position = 5},
         {Name = "Info", Position = 45},
         {Name = "Settings", Position = 85},
@@ -191,95 +229,86 @@ function MainGui.CreateTabButtons()
         {Name = "Backdoor", Position = 165}
     }
     
-    for _, tabInfo in ipairs(tabList) do
-        local tabButton = Instance.new("TextButton")
-        tabButton.Size = UDim2.new(1, -10, 0, 35)
-        tabButton.Position = UDim2.new(0, 5, 0, tabInfo.Position)
-        tabButton.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
-        tabButton.Text = tabInfo.Name
-        tabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-        tabButton.Font = Enum.Font.GothamBold
-        tabButton.TextSize = 12
-        tabButton.Parent = tabContainer
-        
-        local corner = Instance.new("UICorner")
-        corner.CornerRadius = UDim.new(0, 8)
-        corner.Parent = tabButton
-        
-        tabButton.MouseButton1Click:Connect(function()
-            MainGui.SwitchTab(tabInfo.Name)
-        end)
-        
-        tabs[tabInfo.Name] = tabButton
+    for _, tabInfo in ipairs(tabs) do
+        MainGui.CreateTabButton(leftFrame, tabInfo.Name, tabInfo.Position)
     end
+    
+    -- Create content frames
+    MainGui.CreateMainContent(rightFrame)
+    MainGui.CreateInfoContent(rightFrame)
+    MainGui.CreateSettingsContent(rightFrame)
+    MainGui.CreateExecutorContent(rightFrame)
+    MainGui.CreateBackdoorContent(rightFrame)
 end
 
-function MainGui.CreateContentArea()
-    local contentContainer = Instance.new("Frame")
-    contentContainer.Size = UDim2.new(0.75, 0, 1, -30)
-    contentContainer.Position = UDim2.new(0.25, 0, 0, 30)
-    contentContainer.BackgroundTransparency = 1
-    contentContainer.Parent = mainFrame
+function MainGui.CreateTabButton(parent, name, position)
+    local tabButton = Instance.new("TextButton")
+    tabButton.Name = name .. "Tab"
+    tabButton.Size = UDim2.new(1, -10, 0, 35)
+    tabButton.Position = UDim2.new(0, 5, 0, position)
+    tabButton.BackgroundColor3 = Themes.dark.buttonColor
+    tabButton.Text = name
+    tabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    tabButton.Font = Enum.Font.GothamBold
+    tabButton.TextSize = 12
+    tabButton.Parent = parent
     
-    -- Create tab frames
-    MainGui.CreateMainTab(contentContainer)
-    MainGui.CreateInfoTab(contentContainer)
-    MainGui.CreateSettingsTab(contentContainer)
-    MainGui.CreateExecutorTab(contentContainer)
-    MainGui.CreateBackdoorTab(contentContainer)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = tabButton
+    
+    tabButton.MouseButton1Click:Connect(function()
+        MainGui.SwitchTab(name)
+    end)
 end
 
-function MainGui.CreateMainTab(parent)
-    local mainTab = Instance.new("ScrollingFrame")
-    mainTab.Name = "MainTab"
-    mainTab.Size = UDim2.new(1, 0, 1, 0)
-    mainTab.BackgroundTransparency = 1
-    mainTab.ScrollBarThickness = 8
-    mainTab.CanvasSize = UDim2.new(0, 0, 0, 600)
-    mainTab.Visible = false
-    mainTab.Parent = parent
+function MainGui.CreateMainContent(parent)
+    local mainContent = Instance.new("ScrollingFrame")
+    mainContent.Name = "MainContent"
+    mainContent.Size = UDim2.new(1, 0, 1, 0)
+    mainContent.BackgroundTransparency = 1
+    mainContent.ScrollBarThickness = 8
+    mainContent.CanvasSize = UDim2.new(0, 0, 0, 600)
+    mainContent.Visible = false
+    mainContent.Parent = parent
     
-    tabFrames.Main = mainTab
-    
-    -- Initialize Movement module GUI
+    -- Initialize movement module
     if modules.Movement then
-        modules.Movement.CreateGUI(mainTab)
+        modules.Movement.CreateGUI(mainContent)
     end
     
-    -- Initialize Teleport module GUI
+    -- Initialize teleport module
     if modules.Teleport then
-        modules.Teleport.CreateGUI(mainTab)
+        modules.Teleport.CreateGUI(mainContent)
     end
     
-    -- Initialize AntiDie module GUI
+    -- Initialize anti-die module
     if modules.AntiDie then
-        modules.AntiDie.CreateGUI(mainTab)
+        modules.AntiDie.CreateGUI(mainContent)
     end
 end
 
-function MainGui.CreateInfoTab(parent)
-    local infoTab = Instance.new("ScrollingFrame")
-    infoTab.Name = "InfoTab"
-    infoTab.Size = UDim2.new(1, 0, 1, 0)
-    infoTab.BackgroundTransparency = 1
-    infoTab.ScrollBarThickness = 8
-    infoTab.CanvasSize = UDim2.new(0, 0, 0, 400)
-    infoTab.Visible = false
-    infoTab.Parent = parent
-    
-    tabFrames.Info = infoTab
+function MainGui.CreateInfoContent(parent)
+    local infoContent = Instance.new("ScrollingFrame")
+    infoContent.Name = "InfoContent"
+    infoContent.Size = UDim2.new(1, 0, 1, 0)
+    infoContent.BackgroundTransparency = 1
+    infoContent.ScrollBarThickness = 8
+    infoContent.CanvasSize = UDim2.new(0, 0, 0, 400)
+    infoContent.Visible = false
+    infoContent.Parent = parent
     
     local container = Instance.new("Frame")
     container.Size = UDim2.new(1, 0, 0, 400)
     container.BackgroundTransparency = 1
-    container.Parent = infoTab
+    container.Parent = infoContent
     
-    -- Game Info
+    -- Game info
     local gameInfo = Instance.new("TextLabel")
     gameInfo.Size = UDim2.new(1, -10, 0, 25)
     gameInfo.Position = UDim2.new(0, 5, 0, 5)
     gameInfo.BackgroundTransparency = 1
-    gameInfo.Text = "Game: " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+    gameInfo.Text = "Game: " .. MarketplaceService:GetProductInfo(game.PlaceId).Name
     gameInfo.TextColor3 = Color3.fromRGB(255, 255, 255)
     gameInfo.Font = Enum.Font.Gotham
     gameInfo.TextSize = 14
@@ -308,7 +337,7 @@ function MainGui.CreateInfoTab(parent)
     userIdInfo.TextXAlignment = Enum.TextXAlignment.Left
     userIdInfo.Parent = container
     
-    -- Discord Button
+    -- Discord button
     local discordBtn = Instance.new("TextButton")
     discordBtn.Size = UDim2.new(1, -10, 0, 35)
     discordBtn.Position = UDim2.new(0, 5, 0, 100)
@@ -324,41 +353,28 @@ function MainGui.CreateInfoTab(parent)
     discordCorner.Parent = discordBtn
     
     discordBtn.MouseButton1Click:Connect(function()
-        setclipboard("https://discord.gg/MKSBJDFFd")
-        MainGui.ShowNotification("Discord", "Discord link copied!")
+        if modules.Main then
+            modules.Main.CopyDiscord()
+        end
     end)
-    
-    -- Credits
-    local credits = Instance.new("TextLabel")
-    credits.Size = UDim2.new(1, -10, 0, 60)
-    credits.Position = UDim2.new(0, 5, 0, 150)
-    credits.BackgroundTransparency = 1
-    credits.Text = "Created by: h4000_audio8\nThanks for using Lunar Script!\nVersion: 1.0"
-    credits.TextColor3 = Color3.fromRGB(255, 255, 255)
-    credits.Font = Enum.Font.Gotham
-    credits.TextSize = 12
-    credits.TextXAlignment = Enum.TextXAlignment.Left
-    credits.Parent = container
 end
 
-function MainGui.CreateSettingsTab(parent)
-    local settingsTab = Instance.new("ScrollingFrame")
-    settingsTab.Name = "SettingsTab"
-    settingsTab.Size = UDim2.new(1, 0, 1, 0)
-    settingsTab.BackgroundTransparency = 1
-    settingsTab.ScrollBarThickness = 8
-    settingsTab.CanvasSize = UDim2.new(0, 0, 0, 300)
-    settingsTab.Visible = false
-    settingsTab.Parent = parent
-    
-    tabFrames.Settings = settingsTab
+function MainGui.CreateSettingsContent(parent)
+    local settingsContent = Instance.new("ScrollingFrame")
+    settingsContent.Name = "SettingsContent"
+    settingsContent.Size = UDim2.new(1, 0, 1, 0)
+    settingsContent.BackgroundTransparency = 1
+    settingsContent.ScrollBarThickness = 8
+    settingsContent.CanvasSize = UDim2.new(0, 0, 0, 300)
+    settingsContent.Visible = false
+    settingsContent.Parent = parent
     
     local container = Instance.new("Frame")
     container.Size = UDim2.new(1, 0, 0, 300)
     container.BackgroundTransparency = 1
-    container.Parent = settingsTab
+    container.Parent = settingsContent
     
-    -- Theme Settings
+    -- Theme settings
     local themeTitle = Instance.new("TextLabel")
     themeTitle.Size = UDim2.new(1, -10, 0, 25)
     themeTitle.Position = UDim2.new(0, 5, 0, 5)
@@ -373,7 +389,7 @@ function MainGui.CreateSettingsTab(parent)
     local darkThemeBtn = Instance.new("TextButton")
     darkThemeBtn.Size = UDim2.new(1, -10, 0, 25)
     darkThemeBtn.Position = UDim2.new(0, 5, 0, 35)
-    darkThemeBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+    darkThemeBtn.BackgroundColor3 = Themes.dark.buttonColor
     darkThemeBtn.Text = "DARK THEME"
     darkThemeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     darkThemeBtn.Font = Enum.Font.Gotham
@@ -384,10 +400,24 @@ function MainGui.CreateSettingsTab(parent)
     darkCorner.CornerRadius = UDim.new(0, 6)
     darkCorner.Parent = darkThemeBtn
     
+    local oceanThemeBtn = Instance.new("TextButton")
+    oceanThemeBtn.Size = UDim2.new(1, -10, 0, 25)
+    oceanThemeBtn.Position = UDim2.new(0, 5, 0, 65)
+    oceanThemeBtn.BackgroundColor3 = Themes.ocean.buttonColor
+    oceanThemeBtn.Text = "OCEAN THEME"
+    oceanThemeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    oceanThemeBtn.Font = Enum.Font.Gotham
+    oceanThemeBtn.TextSize = 12
+    oceanThemeBtn.Parent = container
+    
+    local oceanCorner = Instance.new("UICorner")
+    oceanCorner.CornerRadius = UDim.new(0, 6)
+    oceanCorner.Parent = oceanThemeBtn
+    
     local rgbModeBtn = Instance.new("TextButton")
     rgbModeBtn.Size = UDim2.new(1, -10, 0, 25)
-    rgbModeBtn.Position = UDim2.new(0, 5, 0, 65)
-    rgbModeBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+    rgbModeBtn.Position = UDim2.new(0, 5, 0, 95)
+    rgbModeBtn.BackgroundColor3 = Themes.dark.buttonColor
     rgbModeBtn.Text = "RGB MODE: ON"
     rgbModeBtn.TextColor3 = Color3.fromRGB(100, 255, 100)
     rgbModeBtn.Font = Enum.Font.Gotham
@@ -398,10 +428,10 @@ function MainGui.CreateSettingsTab(parent)
     rgbCorner.CornerRadius = UDim.new(0, 6)
     rgbCorner.Parent = rgbModeBtn
     
-    -- Server Management
+    -- Server management
     local serverTitle = Instance.new("TextLabel")
     serverTitle.Size = UDim2.new(1, -10, 0, 25)
-    serverTitle.Position = UDim2.new(0, 5, 0, 100)
+    serverTitle.Position = UDim2.new(0, 5, 0, 130)
     serverTitle.BackgroundTransparency = 1
     serverTitle.Text = "SERVER MANAGEMENT"
     serverTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -412,8 +442,8 @@ function MainGui.CreateSettingsTab(parent)
     
     local rejoinBtn = Instance.new("TextButton")
     rejoinBtn.Size = UDim2.new(1, -10, 0, 25)
-    rejoinBtn.Position = UDim2.new(0, 5, 0, 130)
-    rejoinBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+    rejoinBtn.Position = UDim2.new(0, 5, 0, 160)
+    rejoinBtn.BackgroundColor3 = Themes.dark.buttonColor
     rejoinBtn.Text = "REJOIN SERVER"
     rejoinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     rejoinBtn.Font = Enum.Font.Gotham
@@ -426,7 +456,13 @@ function MainGui.CreateSettingsTab(parent)
     
     -- Button events
     darkThemeBtn.MouseButton1Click:Connect(function()
+        MainGui.ApplyTheme("dark")
         MainGui.ShowNotification("Theme", "Dark theme applied!")
+    end)
+    
+    oceanThemeBtn.MouseButton1Click:Connect(function()
+        MainGui.ApplyTheme("ocean")
+        MainGui.ShowNotification("Theme", "Ocean theme applied!")
     end)
     
     rgbModeBtn.MouseButton1Click:Connect(function()
@@ -442,74 +478,75 @@ function MainGui.CreateSettingsTab(parent)
     end)
     
     rejoinBtn.MouseButton1Click:Connect(function()
-        game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId, localPlayer)
+        TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, localPlayer)
     end)
 end
 
-function MainGui.CreateExecutorTab(parent)
-    local executorTab = Instance.new("ScrollingFrame")
-    executorTab.Name = "ExecutorTab"
-    executorTab.Size = UDim2.new(1, 0, 1, 0)
-    executorTab.BackgroundTransparency = 1
-    executorTab.ScrollBarThickness = 8
-    executorTab.CanvasSize = UDim2.new(0, 0, 0, 400)
-    executorTab.Visible = false
-    executorTab.Parent = parent
+function MainGui.CreateExecutorContent(parent)
+    local executorContent = Instance.new("ScrollingFrame")
+    executorContent.Name = "ExecutorContent"
+    executorContent.Size = UDim2.new(1, 0, 1, 0)
+    executorContent.BackgroundTransparency = 1
+    executorContent.ScrollBarThickness = 8
+    executorContent.CanvasSize = UDim2.new(0, 0, 0, 400)
+    executorContent.Visible = false
+    executorContent.Parent = parent
     
-    tabFrames.Executor = executorTab
-    
-    -- Initialize Executor module GUI
+    -- Initialize executor module
     if modules.Executor then
-        modules.Executor.CreateGUI(executorTab)
+        modules.Executor.CreateGUI(executorContent)
     end
 end
 
-function MainGui.CreateBackdoorTab(parent)
-    local backdoorTab = Instance.new("ScrollingFrame")
-    backdoorTab.Name = "BackdoorTab"
-    backdoorTab.Size = UDim2.new(1, 0, 1, 0)
-    backdoorTab.BackgroundTransparency = 1
-    backdoorTab.ScrollBarThickness = 8
-    backdoorTab.CanvasSize = UDim2.new(0, 0, 0, 500)
-    backdoorTab.Visible = false
-    backdoorTab.Parent = parent
+function MainGui.CreateBackdoorContent(parent)
+    local backdoorContent = Instance.new("ScrollingFrame")
+    backdoorContent.Name = "BackdoorContent"
+    backdoorContent.Size = UDim2.new(1, 0, 1, 0)
+    backdoorContent.BackgroundTransparency = 1
+    backdoorContent.ScrollBarThickness = 8
+    backdoorContent.CanvasSize = UDim2.new(0, 0, 0, 500)
+    backdoorContent.Visible = false
+    backdoorContent.Parent = parent
     
-    tabFrames.Backdoor = backdoorTab
-    
-    -- Initialize Backdoor module GUI
+    -- Initialize backdoor module
     if modules.Backdoor then
-        modules.Backdoor.CreateGUI(backdoorTab)
+        modules.Backdoor.CreateGUI(backdoorContent)
     end
 end
 
 function MainGui.SwitchTab(tabName)
-    -- Hide all tabs
-    for name, tabFrame in pairs(tabFrames) do
-        tabFrame.Visible = false
+    -- Hide all content
+    for _, child in pairs(mainFrame:GetDescendants()) do
+        if child.Name:match("Content$") and child:IsA("ScrollingFrame") then
+            child.Visible = false
+        end
     end
     
-    -- Show selected tab
-    if tabFrames[tabName] then
-        tabFrames[tabName].Visible = true
+    -- Show selected content
+    local targetContent = mainFrame:FindFirstChild(tabName .. "Content")
+    if targetContent then
+        targetContent.Visible = true
         currentTab = tabName
     end
     
     -- Update tab button colors
-    for name, button in pairs(tabs) do
-        if name == tabName then
-            button.BackgroundColor3 = Color3.fromRGB(65, 105, 225) -- Active color
-        else
-            button.BackgroundColor3 = Color3.fromRGB(45, 45, 60) -- Inactive color
+    for _, tab in pairs(mainFrame:GetDescendants()) do
+        if tab:IsA("TextButton") and tab.Name:match("Tab$") then
+            if tab.Name == tabName .. "Tab" then
+                tab.BackgroundColor3 = Color3.fromRGB(65, 105, 225) -- Active
+            else
+                tab.BackgroundColor3 = Themes.dark.buttonColor -- Inactive
+            end
         end
     end
 end
 
-function MainGui.ToggleGUI()
-    mainFrame.Visible = not mainFrame.Visible
-end
-
-function MainGui.UpdateCharacterInfo(character)
-    -- Update GUI dengan info character terbaru
+function MainGui.ApplyTheme(themeName)
+    local theme = Themes[themeName]
+    if theme then
+        mainFrame.BackgroundColor3 = theme.backgroundColor
+        -- Update other elements as needed
+    end
 end
 
 function MainGui.ShowNotification(title, text)
@@ -518,6 +555,14 @@ function MainGui.ShowNotification(title, text)
         Text = text,
         Duration = 3
     })
+end
+
+function MainGui.GetWalkSpeed()
+    return 16 -- Will be implemented with movement module
+end
+
+function MainGui.GetJumpPower()
+    return 50 -- Will be implemented with movement module
 end
 
 return MainGui
