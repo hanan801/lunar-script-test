@@ -1,4 +1,4 @@
--- Lunar Script Backdoor Module
+-- Lunar Script Backdoor Module - FIXED VERSION
 local Backdoor = {}
 
 -- Services
@@ -36,7 +36,7 @@ function Backdoor.CreateGUI(parent)
     title.TextXAlignment = Enum.TextXAlignment.Left
     title.Parent = container
     
-    -- Scanner Section
+    -- Scanner Section (HANYA INI YANG MUNCUL AWAL)
     local scannerSection = Instance.new("Frame")
     scannerSection.Size = UDim2.new(1, -10, 0, 80)
     scannerSection.Position = UDim2.new(0, 5, 0, 35)
@@ -45,7 +45,6 @@ function Backdoor.CreateGUI(parent)
     local scannerCorner = Instance.new("UICorner")
     scannerCorner.CornerRadius = UDim.new(0, 8)
     scannerCorner.Parent = scannerSection
-    
     scannerSection.Parent = container
     
     local scanButton = Instance.new("TextButton")
@@ -60,7 +59,6 @@ function Backdoor.CreateGUI(parent)
     local scanCorner = Instance.new("UICorner")
     scanCorner.CornerRadius = UDim.new(0, 6)
     scanCorner.Parent = scanButton
-    
     scanButton.Parent = scannerSection
     
     local scanStatus = Instance.new("TextLabel")
@@ -74,33 +72,42 @@ function Backdoor.CreateGUI(parent)
     scanStatus.TextXAlignment = Enum.TextXAlignment.Left
     scanStatus.Parent = scannerSection
     
-    -- Script Box
+    -- Script Section (MUNCUL SETELAH SCAN BERHASIL)
+    local scriptSection = Instance.new("Frame")
+    scriptSection.Size = UDim2.new(1, -10, 0, 250)
+    scriptSection.Position = UDim2.new(0, 5, 0, 125)
+    scriptSection.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+    scriptSection.Visible = false
+    
+    local scriptSectionCorner = Instance.new("UICorner")
+    scriptSectionCorner.CornerRadius = UDim.new(0, 8)
+    scriptSectionCorner.Parent = scriptSection
+    scriptSection.Parent = container
+    
     local scriptBox = Instance.new("TextBox")
     scriptBox.Size = UDim2.new(1, -10, 0, 200)
-    scriptBox.Position = UDim2.new(0, 5, 0, 125)
+    scriptBox.Position = UDim2.new(0, 5, 0, 5)
     scriptBox.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
     scriptBox.TextColor3 = Color3.fromRGB(255, 255, 255)
     scriptBox.Font = Enum.Font.Gotham
     scriptBox.TextSize = 12
     scriptBox.TextWrapped = true
     scriptBox.MultiLine = true
-    scriptBox.PlaceholderText = "Paste your backdoor script here...\nScript will be executed on all players via backdoor"
+    scriptBox.PlaceholderText = "Masukkan script untuk dijalankan di SEMUA PLAYER via backdoor...\nContoh: Script skybox, ini akan terlihat oleh semua pemain!"
     
     local scriptCorner = Instance.new("UICorner")
     scriptCorner.CornerRadius = UDim.new(0, 6)
     scriptCorner.Parent = scriptBox
+    scriptBox.Parent = scriptSection
     
-    scriptBox.Parent = container
-    
-    -- Button Container
     local buttonContainer = Instance.new("Frame")
     buttonContainer.Size = UDim2.new(1, -10, 0, 35)
-    buttonContainer.Position = UDim2.new(0, 5, 0, 335)
+    buttonContainer.Position = UDim2.new(0, 5, 0, 210)
     buttonContainer.BackgroundTransparency = 1
-    buttonContainer.Parent = container
+    buttonContainer.Parent = scriptSection
     
     local executeButton = Instance.new("TextButton")
-    executeButton.Size = UDim2.new(0.32, 0, 1, 0)
+    executeButton.Size = UDim2.new(0.48, 0, 1, 0)
     executeButton.BackgroundColor3 = Color3.fromRGB(50, 150, 80)
     executeButton.Text = "EXECUTE"
     executeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -110,12 +117,11 @@ function Backdoor.CreateGUI(parent)
     local executeCorner = Instance.new("UICorner")
     executeCorner.CornerRadius = UDim.new(0, 6)
     executeCorner.Parent = executeButton
-    
     executeButton.Parent = buttonContainer
     
     local clearButton = Instance.new("TextButton")
-    clearButton.Size = UDim2.new(0.32, 0, 1, 0)
-    clearButton.Position = UDim2.new(0.34, 0, 0, 0)
+    clearButton.Size = UDim2.new(0.48, 0, 1, 0)
+    clearButton.Position = UDim2.new(0.52, 0, 0, 0)
     clearButton.BackgroundColor3 = Color3.fromRGB(220, 60, 60)
     clearButton.Text = "CLEAR"
     clearButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -125,27 +131,11 @@ function Backdoor.CreateGUI(parent)
     local clearCorner = Instance.new("UICorner")
     clearCorner.CornerRadius = UDim.new(0, 6)
     clearCorner.Parent = clearButton
-    
     clearButton.Parent = buttonContainer
-    
-    local saveButton = Instance.new("TextButton")
-    saveButton.Size = UDim2.new(0.32, 0, 1, 0)
-    saveButton.Position = UDim2.new(0.68, 0, 0, 0)
-    saveButton.BackgroundColor3 = Color3.fromRGB(65, 105, 225)
-    saveButton.Text = "SAVE"
-    saveButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    saveButton.Font = Enum.Font.GothamBold
-    saveButton.TextSize = 12
-    
-    local saveCorner = Instance.new("UICorner")
-    saveCorner.CornerRadius = UDim.new(0, 6)
-    saveCorner.Parent = saveButton
-    
-    saveButton.Parent = buttonContainer
     
     -- Button Events
     scanButton.MouseButton1Click:Connect(function()
-        Backdoor.StartScan(scanButton, scanStatus)
+        Backdoor.StartScan(scanButton, scanStatus, scriptSection)
     end)
     
     executeButton.MouseButton1Click:Connect(function()
@@ -156,13 +146,9 @@ function Backdoor.CreateGUI(parent)
         scriptBox.Text = ""
         Backdoor.ShowNotification("Backdoor System", "Script cleared")
     end)
-    
-    saveButton.MouseButton1Click:Connect(function()
-        Backdoor.SaveScript(scriptBox.Text)
-    end)
 end
 
-function Backdoor.StartScan(scanButton, statusLabel)
+function Backdoor.StartScan(scanButton, statusLabel, scriptSection)
     if scanning then return end
     
     scanning = true
@@ -177,7 +163,8 @@ function Backdoor.StartScan(scanButton, statusLabel)
             statusLabel.Text = "Status: BACKDOOR FOUND!"
             scanButton.Text = "BACKDOOR FOUND"
             scanButton.BackgroundColor3 = Color3.fromRGB(50, 150, 80)
-            Backdoor.ShowNotification("Backdoor System", "Backdoor found and ready!")
+            scriptSection.Visible = true
+            Backdoor.ShowNotification("Backdoor System", "Backdoor found! Script executor unlocked.")
         else
             statusLabel.Text = "Status: No backdoor found"
             scanButton.Text = "SCAN BACKDOOR"
@@ -291,17 +278,8 @@ function Backdoor.ExecuteScript(scriptText)
         Backdoor.RunRemote(backdoor, scriptText)
     end
     
-    Backdoor.ShowNotification("Backdoor System", "Script executed via backdoor")
+    Backdoor.ShowNotification("Backdoor System", "Script executed via backdoor on ALL PLAYERS!")
     return true
-end
-
-function Backdoor.SaveScript(scriptText)
-    if scriptText ~= "" then
-        -- Save logic bisa diintegrasikan dengan Executor module
-        Backdoor.ShowNotification("Backdoor System", "Script saved (integrate with Executor)")
-    else
-        Backdoor.ShowNotification("Backdoor Error", "Cannot save empty script")
-    end
 end
 
 function Backdoor.ShowNotification(title, text)
