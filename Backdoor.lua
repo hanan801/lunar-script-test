@@ -84,20 +84,9 @@ function Backdoor.CreateGUI(parent)
     scriptSectionCorner.Parent = scriptSection
     scriptSection.Parent = container
     
-    local scriptTitle = Instance.new("TextLabel")
-    scriptTitle.Size = UDim2.new(1, -10, 0, 20)
-    scriptTitle.Position = UDim2.new(0, 5, 0, 5)
-    scriptTitle.BackgroundTransparency = 1
-    scriptTitle.Text = "Execute script on ALL PLAYERS:"
-    scriptTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
-    scriptTitle.Font = Enum.Font.Gotham
-    scriptTitle.TextSize = 12
-    scriptTitle.TextXAlignment = Enum.TextXAlignment.Left
-    scriptTitle.Parent = scriptSection
-    
     local scriptBox = Instance.new("TextBox")
-    scriptBox.Size = UDim2.new(1, -10, 0, 180)
-    scriptBox.Position = UDim2.new(0, 5, 0, 30)
+    scriptBox.Size = UDim2.new(1, -10, 0, 200)
+    scriptBox.Position = UDim2.new(0, 5, 0, 5)
     scriptBox.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
     scriptBox.TextColor3 = Color3.fromRGB(255, 255, 255)
     scriptBox.Font = Enum.Font.Gotham
@@ -113,7 +102,7 @@ function Backdoor.CreateGUI(parent)
     
     local buttonContainer = Instance.new("Frame")
     buttonContainer.Size = UDim2.new(1, -10, 0, 35)
-    buttonContainer.Position = UDim2.new(0, 5, 0, 215)
+    buttonContainer.Position = UDim2.new(0, 5, 0, 210)
     buttonContainer.BackgroundTransparency = 1
     buttonContainer.Parent = scriptSection
     
