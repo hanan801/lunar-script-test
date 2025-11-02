@@ -28,7 +28,7 @@ end
 
 function Movement.CreateGUI(parent)
     local container = Instance.new("Frame")
-    container.Size = UDim2.new(1, 0, 0, 300)
+    container.Size = UDim2.new(1, 0, 0, 630)
     container.BackgroundTransparency = 1
     container.Parent = parent
     
@@ -71,18 +71,32 @@ function Movement.CreateGUI(parent)
     walkSpeedTitle.TextXAlignment = Enum.TextXAlignment.Left
     walkSpeedTitle.Parent = container
     
-    local walkSpeedContainer = Instance.new("Frame")
-    walkSpeedContainer.Size = UDim2.new(1, -10, 0, 25)
-    walkSpeedContainer.Position = UDim2.new(0, 5, 0, 90)
-    walkSpeedContainer.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
-    walkSpeedContainer.Parent = container
+    local walkSpeedToggle = Instance.new("TextButton")
+    walkSpeedToggle.Size = UDim2.new(0.3, -5, 0, 25)
+    walkSpeedToggle.Position = UDim2.new(0, 5, 0, 90)
+    walkSpeedToggle.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+    walkSpeedToggle.Text = "OFF"
+    walkSpeedToggle.TextColor3 = Color3.fromRGB(255, 100, 100)
+    walkSpeedToggle.Font = Enum.Font.Gotham
+    walkSpeedToggle.TextSize = 12
+    walkSpeedToggle.Parent = container
     
     local walkSpeedCorner = Instance.new("UICorner")
     walkSpeedCorner.CornerRadius = UDim.new(0, 6)
-    walkSpeedCorner.Parent = walkSpeedContainer
+    walkSpeedCorner.Parent = walkSpeedToggle
+    
+    local walkSpeedContainer = Instance.new("Frame")
+    walkSpeedContainer.Size = UDim2.new(0.65, -5, 0, 25)
+    walkSpeedContainer.Position = UDim2.new(0.35, 0, 0, 90)
+    walkSpeedContainer.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+    walkSpeedContainer.Parent = container
+    
+    local walkSpeedCorner2 = Instance.new("UICorner")
+    walkSpeedCorner2.CornerRadius = UDim.new(0, 6)
+    walkSpeedCorner2.Parent = walkSpeedContainer
     
     local walkSpeedBox = Instance.new("TextBox")
-    walkSpeedBox.Size = UDim2.new(0.6, 0, 1, 0)
+    walkSpeedBox.Size = UDim2.new(0.7, 0, 1, 0)
     walkSpeedBox.Position = UDim2.new(0, 5, 0, 0)
     walkSpeedBox.BackgroundTransparency = 1
     walkSpeedBox.Text = "16"
@@ -92,19 +106,19 @@ function Movement.CreateGUI(parent)
     walkSpeedBox.PlaceholderText = "Enter speed"
     walkSpeedBox.Parent = walkSpeedContainer
     
-    local walkSpeedBtn = Instance.new("TextButton")
-    walkSpeedBtn.Size = UDim2.new(0.35, -5, 0.8, 0)
-    walkSpeedBtn.Position = UDim2.new(0.65, 0, 0.1, 0)
-    walkSpeedBtn.BackgroundColor3 = Color3.fromRGB(60, 179, 113)
-    walkSpeedBtn.Text = "SET WALKSPEED"
-    walkSpeedBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    walkSpeedBtn.Font = Enum.Font.Gotham
-    walkSpeedBtn.TextSize = 10
-    walkSpeedBtn.Parent = walkSpeedContainer
+    local walkSpeedSet = Instance.new("TextButton")
+    walkSpeedSet.Size = UDim2.new(0.25, -5, 0.8, 0)
+    walkSpeedSet.Position = UDim2.new(0.75, 0, 0.1, 0)
+    walkSpeedSet.BackgroundColor3 = Color3.fromRGB(60, 179, 113)
+    walkSpeedSet.Text = "SET"
+    walkSpeedSet.TextColor3 = Color3.fromRGB(255, 255, 255)
+    walkSpeedSet.Font = Enum.Font.Gotham
+    walkSpeedSet.TextSize = 10
+    walkSpeedSet.Parent = walkSpeedContainer
     
-    local walkSpeedCorner2 = Instance.new("UICorner")
-    walkSpeedCorner2.CornerRadius = UDim.new(0, 4)
-    walkSpeedCorner2.Parent = walkSpeedBtn
+    local setCorner = Instance.new("UICorner")
+    setCorner.CornerRadius = UDim.new(0, 4)
+    setCorner.Parent = walkSpeedSet
     
     -- Jump Power
     local jumpPowerTitle = Instance.new("TextLabel")
@@ -118,18 +132,32 @@ function Movement.CreateGUI(parent)
     jumpPowerTitle.TextXAlignment = Enum.TextXAlignment.Left
     jumpPowerTitle.Parent = container
     
-    local jumpPowerContainer = Instance.new("Frame")
-    jumpPowerContainer.Size = UDim2.new(1, -10, 0, 25)
-    jumpPowerContainer.Position = UDim2.new(0, 5, 0, 145)
-    jumpPowerContainer.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
-    jumpPowerContainer.Parent = container
+    local jumpPowerToggle = Instance.new("TextButton")
+    jumpPowerToggle.Size = UDim2.new(0.3, -5, 0, 25)
+    jumpPowerToggle.Position = UDim2.new(0, 5, 0, 145)
+    jumpPowerToggle.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+    jumpPowerToggle.Text = "OFF"
+    jumpPowerToggle.TextColor3 = Color3.fromRGB(255, 100, 100)
+    jumpPowerToggle.Font = Enum.Font.Gotham
+    jumpPowerToggle.TextSize = 12
+    jumpPowerToggle.Parent = container
     
     local jumpPowerCorner = Instance.new("UICorner")
     jumpPowerCorner.CornerRadius = UDim.new(0, 6)
-    jumpPowerCorner.Parent = jumpPowerContainer
+    jumpPowerCorner.Parent = jumpPowerToggle
+    
+    local jumpPowerContainer = Instance.new("Frame")
+    jumpPowerContainer.Size = UDim2.new(0.65, -5, 0, 25)
+    jumpPowerContainer.Position = UDim2.new(0.35, 0, 0, 145)
+    jumpPowerContainer.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+    jumpPowerContainer.Parent = container
+    
+    local jumpPowerCorner2 = Instance.new("UICorner")
+    jumpPowerCorner2.CornerRadius = UDim.new(0, 6)
+    jumpPowerCorner2.Parent = jumpPowerContainer
     
     local jumpPowerBox = Instance.new("TextBox")
-    jumpPowerBox.Size = UDim2.new(0.6, 0, 1, 0)
+    jumpPowerBox.Size = UDim2.new(0.7, 0, 1, 0)
     jumpPowerBox.Position = UDim2.new(0, 5, 0, 0)
     jumpPowerBox.BackgroundTransparency = 1
     jumpPowerBox.Text = "50"
@@ -139,39 +167,24 @@ function Movement.CreateGUI(parent)
     jumpPowerBox.PlaceholderText = "Enter jump power"
     jumpPowerBox.Parent = jumpPowerContainer
     
-    local jumpPowerBtn = Instance.new("TextButton")
-    jumpPowerBtn.Size = UDim2.new(0.35, -5, 0.8, 0)
-    jumpPowerBtn.Position = UDim2.new(0.65, 0, 0.1, 0)
-    jumpPowerBtn.BackgroundColor3 = Color3.fromRGB(60, 179, 113)
-    jumpPowerBtn.Text = "SET JUMPPOWER"
-    jumpPowerBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    jumpPowerBtn.Font = Enum.Font.Gotham
-    jumpPowerBtn.TextSize = 10
-    jumpPowerBtn.Parent = jumpPowerContainer
+    local jumpPowerSet = Instance.new("TextButton")
+    jumpPowerSet.Size = UDim2.new(0.25, -5, 0.8, 0)
+    jumpPowerSet.Position = UDim2.new(0.75, 0, 0.1, 0)
+    jumpPowerSet.BackgroundColor3 = Color3.fromRGB(60, 179, 113)
+    jumpPowerSet.Text = "SET"
+    jumpPowerSet.TextColor3 = Color3.fromRGB(255, 255, 255)
+    jumpPowerSet.Font = Enum.Font.Gotham
+    jumpPowerSet.TextSize = 10
+    jumpPowerSet.Parent = jumpPowerContainer
     
-    local jumpPowerCorner2 = Instance.new("UICorner")
-    jumpPowerCorner2.CornerRadius = UDim.new(0, 4)
-    jumpPowerCorner2.Parent = jumpPowerBtn
-    
-    -- Fly GUI Button
-    local flyBtn = Instance.new("TextButton")
-    flyBtn.Size = UDim2.new(1, -10, 0, 30)
-    flyBtn.Position = UDim2.new(0, 5, 0, 175)
-    flyBtn.BackgroundColor3 = Color3.fromRGB(65, 105, 225)
-    flyBtn.Text = "FLY GUI"
-    flyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    flyBtn.Font = Enum.Font.GothamBold
-    flyBtn.TextSize = 12
-    flyBtn.Parent = container
-    
-    local flyCorner = Instance.new("UICorner")
-    flyCorner.CornerRadius = UDim.new(0, 6)
-    flyCorner.Parent = flyBtn
+    local setCorner2 = Instance.new("UICorner")
+    setCorner2.CornerRadius = UDim.new(0, 4)
+    setCorner2.Parent = jumpPowerSet
     
     -- Anti Slow & Anti Low Jump
     local antiSlowBtn = Instance.new("TextButton")
     antiSlowBtn.Size = UDim2.new(0.48, -5, 0, 25)
-    antiSlowBtn.Position = UDim2.new(0, 5, 0, 210)
+    antiSlowBtn.Position = UDim2.new(0, 5, 0, 175)
     antiSlowBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
     antiSlowBtn.Text = "Anti Slow: OFF"
     antiSlowBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
@@ -185,7 +198,7 @@ function Movement.CreateGUI(parent)
     
     local antiLowJumpBtn = Instance.new("TextButton")
     antiLowJumpBtn.Size = UDim2.new(0.48, -5, 0, 25)
-    antiLowJumpBtn.Position = UDim2.new(0.52, 0, 0, 210)
+    antiLowJumpBtn.Position = UDim2.new(0.52, 0, 0, 175)
     antiLowJumpBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
     antiLowJumpBtn.Text = "Anti Low Jump: OFF"
     antiLowJumpBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
@@ -197,21 +210,40 @@ function Movement.CreateGUI(parent)
     antiLowJumpCorner.CornerRadius = UDim.new(0, 6)
     antiLowJumpCorner.Parent = antiLowJumpBtn
     
+    -- Fly GUI Button
+    local flyBtn = Instance.new("TextButton")
+    flyBtn.Size = UDim2.new(1, -10, 0, 30)
+    flyBtn.Position = UDim2.new(0, 5, 0, 205)
+    flyBtn.BackgroundColor3 = Color3.fromRGB(65, 105, 225)
+    flyBtn.Text = "FLY GUI"
+    flyBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    flyBtn.Font = Enum.Font.GothamBold
+    flyBtn.TextSize = 12
+    flyBtn.Parent = container
+    
+    local flyCorner = Instance.new("UICorner")
+    flyCorner.CornerRadius = UDim.new(0, 6)
+    flyCorner.Parent = flyBtn
+    
     -- Button Events
     infinityJumpBtn.MouseButton1Click:Connect(function()
         Movement.ToggleInfinityJump(infinityJumpBtn)
     end)
     
-    walkSpeedBtn.MouseButton1Click:Connect(function()
+    walkSpeedToggle.MouseButton1Click:Connect(function()
+        Movement.ToggleWalkSpeed(walkSpeedToggle, walkSpeedBox)
+    end)
+    
+    walkSpeedSet.MouseButton1Click:Connect(function()
         Movement.SetWalkSpeed(walkSpeedBox)
     end)
     
-    jumpPowerBtn.MouseButton1Click:Connect(function()
-        Movement.SetJumpPower(jumpPowerBox)
+    jumpPowerToggle.MouseButton1Click:Connect(function()
+        Movement.ToggleJumpPower(jumpPowerToggle, jumpPowerBox)
     end)
     
-    flyBtn.MouseButton1Click:Connect(function()
-        Movement.OpenFlyGUI()
+    jumpPowerSet.MouseButton1Click:Connect(function()
+        Movement.SetJumpPower(jumpPowerBox)
     end)
     
     antiSlowBtn.MouseButton1Click:Connect(function()
@@ -220,6 +252,10 @@ function Movement.CreateGUI(parent)
     
     antiLowJumpBtn.MouseButton1Click:Connect(function()
         Movement.ToggleAntiLowJump(antiLowJumpBtn)
+    end)
+    
+    flyBtn.MouseButton1Click:Connect(function()
+        Movement.OpenFlyGUI()
     end)
 end
 
@@ -250,7 +286,28 @@ function Movement.DisableInfinityJump()
     -- Connection will be disconnected when disabled
 end
 
+function Movement.ToggleWalkSpeed(button, textBox)
+    walkspeedEnabled = not walkspeedEnabled
+    
+    if walkspeedEnabled then
+        button.Text = "ON"
+        button.TextColor3 = Color3.fromRGB(100, 255, 100)
+        Movement.SetWalkSpeed(textBox)
+    else
+        button.Text = "OFF"
+        button.TextColor3 = Color3.fromRGB(255, 100, 100)
+        if humanoid then
+            humanoid.WalkSpeed = 16
+        end
+    end
+end
+
 function Movement.SetWalkSpeed(textBox)
+    if not walkspeedEnabled then
+        Movement.ShowNotification("Walk Speed", "Please enable Walk Speed first!")
+        return
+    end
+    
     local speed = tonumber(textBox.Text)
     if speed and humanoid then
         humanoid.WalkSpeed = speed
@@ -260,7 +317,28 @@ function Movement.SetWalkSpeed(textBox)
     end
 end
 
+function Movement.ToggleJumpPower(button, textBox)
+    jumppowerEnabled = not jumppowerEnabled
+    
+    if jumppowerEnabled then
+        button.Text = "ON"
+        button.TextColor3 = Color3.fromRGB(100, 255, 100)
+        Movement.SetJumpPower(textBox)
+    else
+        button.Text = "OFF"
+        button.TextColor3 = Color3.fromRGB(255, 100, 100)
+        if humanoid then
+            humanoid.JumpPower = 50
+        end
+    end
+end
+
 function Movement.SetJumpPower(textBox)
+    if not jumppowerEnabled then
+        Movement.ShowNotification("Jump Power", "Please enable Jump Power first!")
+        return
+    end
+    
     local power = tonumber(textBox.Text)
     if power and humanoid then
         humanoid.JumpPower = power
