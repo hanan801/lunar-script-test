@@ -15,6 +15,7 @@ local modules = {}
 local screenGui
 local mainFrame
 local currentTab = "Main"
+local minimized = false
 
 -- Color themes
 local Themes = {
@@ -39,7 +40,6 @@ local Themes = {
 }
 
 local currentTheme = "dark"
-local rgbLineMode = true
 
 function MainGui.Initialize(loadedModules)
     modules = loadedModules
@@ -55,7 +55,7 @@ function MainGui.CreateMainGUI()
     screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     screenGui.ResetOnSpawn = false
     
-    -- Main frame
+    -- Main frame dengan animasi
     mainFrame = Instance.new("Frame")
     mainFrame.Size = UDim2.new(0, 500, 0, 350)
     mainFrame.Position = UDim2.new(0.5, -250, 0.5, -175)
@@ -68,33 +68,34 @@ function MainGui.CreateMainGUI()
     corner.CornerRadius = UDim.new(0, 12)
     corner.Parent = mainFrame
     
-    -- UI Stroke with RGB mode
+    -- UI Stroke dengan RGB mode - INI YANG DIPERBAIKI
     local stroke = Instance.new("UIStroke")
     stroke.Thickness = 3
     stroke.Parent = mainFrame
     
-    -- RGB animation
-    if rgbLineMode then
-        local hue = 0
-        RunService.Heartbeat:Connect(function(delta)
-            hue = (hue + delta * 60) % 360
-            stroke.Color = Color3.fromHSV(hue/360, 1, 1)
-        end)
-    else
-        stroke.Color = Themes.dark.topBarColor
-    end
+    -- RGB animation system - FIXED
+    RunService.Heartbeat:Connect(function(delta)
+        if modules.Main and modules.Main.GetRGBMode() then
+            stroke.Color = modules.Main.GetRGBColor()
+        else
+            stroke.Color = Themes[currentTheme].topBarColor
+        end
+    end)
     
-    -- Title bar
+    -- Title bar dengan animasi
     MainGui.CreateTitleBar()
     
-    -- Tab system
+    -- Tab system dengan animasi
     MainGui.CreateTabSystem()
     
     -- Parent to player GUI
     screenGui.Parent = localPlayer:WaitForChild("PlayerGui")
     
-    -- Set default tab
+    -- Set default tab dengan animasi
     MainGui.SwitchTab("Main")
+    
+    -- Animasi masuk
+    MainGui.AnimateIn()
 end
 
 function MainGui.CreateTitleBar()
@@ -107,7 +108,7 @@ function MainGui.CreateTitleBar()
     corner.CornerRadius = UDim.new(0, 12)
     corner.Parent = titleBar
     
-    -- Logo and title
+    -- Logo and title dengan animasi
     local titleContainer = Instance.new("Frame")
     titleContainer.Size = UDim2.new(0, 200, 1, 0)
     titleContainer.Position = UDim2.new(0, 10, 0, 0)
@@ -132,76 +133,57 @@ function MainGui.CreateTitleBar()
     title.TextSize = 14
     title.Parent = titleContainer
     
-    -- Control buttons
+    -- Control buttons dengan animasi
     MainGui.CreateControlButtons(titleBar)
 end
 
 function MainGui.CreateControlButtons(parent)
+    local buttonContainer = Instance.new("Frame")
+    buttonContainer.Size = UDim2.new(0, 90, 1, 0)
+    buttonContainer.Position = UDim2.new(1, -90, 0, 0)
+    buttonContainer.BackgroundTransparency = 1
+    buttonContainer.Parent = parent
+    
     local minimizeBtn = Instance.new("TextButton")
-    minimizeBtn.Size = UDim2.new(0, 30, 0, 30)
-    minimizeBtn.Position = UDim2.new(1, -90, 0, 0)
+    minimizeBtn.Size = UDim2.new(0, 30, 1, 0)
     minimizeBtn.BackgroundTransparency = 1
     minimizeBtn.Text = "-"
     minimizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     minimizeBtn.Font = Enum.Font.GothamBold
     minimizeBtn.TextSize = 16
-    minimizeBtn.Parent = parent
+    minimizeBtn.Parent = buttonContainer
     
     local maximizeBtn = Instance.new("TextButton")
-    maximizeBtn.Size = UDim2.new(0, 30, 0, 30)
-    maximizeBtn.Position = UDim2.new(1, -60, 0, 0)
+    maximizeBtn.Size = UDim2.new(0, 30, 1, 0)
+    maximizeBtn.Position = UDim2.new(0, 30, 0, 0)
     maximizeBtn.BackgroundTransparency = 1
     maximizeBtn.Text = "□"
     maximizeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     maximizeBtn.Font = Enum.Font.GothamBold
     maximizeBtn.TextSize = 14
-    maximizeBtn.Parent = parent
+    maximizeBtn.Parent = buttonContainer
     
     local closeBtn = Instance.new("TextButton")
-    closeBtn.Size = UDim2.new(0, 30, 0, 30)
-    closeBtn.Position = UDim2.new(1, -30, 0, 0)
+    closeBtn.Size = UDim2.new(0, 30, 1, 0)
+    closeBtn.Position = UDim2.new(0, 60, 0, 0)
     closeBtn.BackgroundTransparency = 1
     closeBtn.Text = "X"
     closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     closeBtn.Font = Enum.Font.GothamBold
     closeBtn.TextSize = 14
-    closeBtn.Parent = parent
+    closeBtn.Parent = buttonContainer
     
-    -- Button events
+    -- Button events dengan animasi
     minimizeBtn.MouseButton1Click:Connect(function()
-        mainFrame.Visible = false
-        -- Create minimize button
-        local miniBtn = Instance.new("ImageButton")
-        miniBtn.Size = UDim2.new(0, 45, 0, 45)
-        miniBtn.Position = UDim2.new(0.5, -22.5, 0, 10)
-        miniBtn.BackgroundColor3 = Themes.dark.backgroundColor
-        miniBtn.Image = "rbxthumb://type=Asset&id=112498285326629"
-        miniBtn.Parent = screenGui
-        
-        local miniCorner = Instance.new("UICorner")
-        miniCorner.CornerRadius = UDim.new(0, 8)
-        miniCorner.Parent = miniBtn
-        
-        miniBtn.MouseButton1Click:Connect(function()
-            mainFrame.Visible = true
-            miniBtn:Destroy()
-        end)
+        MainGui.Minimize()
     end)
     
     maximizeBtn.MouseButton1Click:Connect(function()
-        if mainFrame.Size == UDim2.new(0, 500, 0, 350) then
-            mainFrame.Size = UDim2.new(0, 600, 0, 450)
-            mainFrame.Position = UDim2.new(0.5, -300, 0.5, -225)
-            maximizeBtn.Text = "❐"
-        else
-            mainFrame.Size = UDim2.new(0, 500, 0, 350)
-            mainFrame.Position = UDim2.new(0.5, -250, 0.5, -175)
-            maximizeBtn.Text = "□"
-        end
+        MainGui.ToggleSize()
     end)
     
     closeBtn.MouseButton1Click:Connect(function()
-        screenGui:Destroy()
+        MainGui.Close()
     end)
 end
 
@@ -220,7 +202,7 @@ function MainGui.CreateTabSystem()
     rightFrame.BackgroundTransparency = 1
     rightFrame.Parent = mainFrame
     
-    -- Create tabs
+    -- Create tabs dengan animasi
     local tabs = {
         {Name = "Main", Position = 5},
         {Name = "Info", Position = 45},
@@ -256,6 +238,19 @@ function MainGui.CreateTabButton(parent, name, position)
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 8)
     corner.Parent = tabButton
+    
+    -- Hover animation
+    tabButton.MouseEnter:Connect(function()
+        if currentTab ~= name then
+            TweenService:Create(tabButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(55, 55, 70)}):Play()
+        end
+    end)
+    
+    tabButton.MouseLeave:Connect(function()
+        if currentTab ~= name then
+            TweenService:Create(tabButton, TweenInfo.new(0.2), {BackgroundColor3 = Themes.dark.buttonColor}):Play()
+        end
+    end)
     
     tabButton.MouseButton1Click:Connect(function()
         MainGui.SwitchTab(name)
@@ -337,7 +332,7 @@ function MainGui.CreateInfoContent(parent)
     userIdInfo.TextXAlignment = Enum.TextXAlignment.Left
     userIdInfo.Parent = container
     
-    -- Discord button
+    -- Discord button dengan animasi
     local discordBtn = Instance.new("TextButton")
     discordBtn.Size = UDim2.new(1, -10, 0, 35)
     discordBtn.Position = UDim2.new(0, 5, 0, 100)
@@ -351,6 +346,15 @@ function MainGui.CreateInfoContent(parent)
     local discordCorner = Instance.new("UICorner")
     discordCorner.CornerRadius = UDim.new(0, 6)
     discordCorner.Parent = discordBtn
+    
+    -- Button animation
+    discordBtn.MouseButton1Down:Connect(function()
+        TweenService:Create(discordBtn, TweenInfo.new(0.1), {Size = UDim2.new(0.95, -10, 0, 33)}):Play()
+    end)
+    
+    discordBtn.MouseButton1Up:Connect(function()
+        TweenService:Create(discordBtn, TweenInfo.new(0.1), {Size = UDim2.new(1, -10, 0, 35)}):Play()
+    end)
     
     discordBtn.MouseButton1Click:Connect(function()
         if modules.Main then
@@ -386,7 +390,7 @@ function MainGui.CreateSettingsContent(parent)
     container.BackgroundTransparency = 1
     container.Parent = settingsContent
     
-    -- Theme settings
+    -- Theme settings dengan animasi
     local themeTitle = Instance.new("TextLabel")
     themeTitle.Size = UDim2.new(1, -10, 0, 25)
     themeTitle.Position = UDim2.new(0, 5, 0, 5)
@@ -466,7 +470,7 @@ function MainGui.CreateSettingsContent(parent)
     rejoinCorner.CornerRadius = UDim.new(0, 6)
     rejoinCorner.Parent = rejoinBtn
     
-    -- Button events
+    -- Button events dengan animasi
     darkThemeBtn.MouseButton1Click:Connect(function()
         MainGui.ApplyTheme("dark")
         MainGui.ShowNotification("Theme", "Dark theme applied!")
@@ -478,15 +482,18 @@ function MainGui.CreateSettingsContent(parent)
     end)
     
     rgbModeBtn.MouseButton1Click:Connect(function()
-        rgbLineMode = not rgbLineMode
-        if rgbLineMode then
-            rgbModeBtn.Text = "RGB MODE: ON"
-            rgbModeBtn.TextColor3 = Color3.fromRGB(100, 255, 100)
-        else
-            rgbModeBtn.Text = "RGB MODE: OFF"
-            rgbModeBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
+        if modules.Main then
+            local currentMode = modules.Main.GetRGBMode()
+            modules.Main.SetRGBMode(not currentMode)
+            if not currentMode then
+                rgbModeBtn.Text = "RGB MODE: ON"
+                rgbModeBtn.TextColor3 = Color3.fromRGB(100, 255, 100)
+            else
+                rgbModeBtn.Text = "RGB MODE: OFF"
+                rgbModeBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
+            end
+            MainGui.ShowNotification("RGB Mode", "RGB mode: " .. tostring(not currentMode))
         end
-        MainGui.ShowNotification("RGB Mode", "RGB mode: " .. tostring(rgbLineMode))
     end)
     
     rejoinBtn.MouseButton1Click:Connect(function()
@@ -527,27 +534,27 @@ function MainGui.CreateBackdoorContent(parent)
 end
 
 function MainGui.SwitchTab(tabName)
-    -- Hide all content
+    -- Hide all content dengan animasi
     for _, child in pairs(mainFrame:GetDescendants()) do
         if child.Name:match("Content$") and child:IsA("ScrollingFrame") then
             child.Visible = false
         end
     end
     
-    -- Show selected content
+    -- Show selected content dengan animasi
     local targetContent = mainFrame:FindFirstChild(tabName .. "Content")
     if targetContent then
         targetContent.Visible = true
         currentTab = tabName
     end
     
-    -- Update tab button colors
+    -- Update tab button colors dengan animasi
     for _, tab in pairs(mainFrame:GetDescendants()) do
         if tab:IsA("TextButton") and tab.Name:match("Tab$") then
             if tab.Name == tabName .. "Tab" then
-                tab.BackgroundColor3 = Color3.fromRGB(65, 105, 225) -- Active
+                TweenService:Create(tab, TweenInfo.new(0.3), {BackgroundColor3 = Color3.fromRGB(65, 105, 225)}):Play()
             else
-                tab.BackgroundColor3 = Themes.dark.buttonColor -- Inactive
+                TweenService:Create(tab, TweenInfo.new(0.3), {BackgroundColor3 = Themes.dark.buttonColor}):Play()
             end
         end
     end
@@ -556,14 +563,62 @@ end
 function MainGui.ApplyTheme(themeName)
     local theme = Themes[themeName]
     if theme then
-        mainFrame.BackgroundColor3 = theme.backgroundColor
+        TweenService:Create(mainFrame, TweenInfo.new(0.5), {BackgroundColor3 = theme.backgroundColor}):Play()
+        
         -- Update title bar
         local titleBar = mainFrame:FindFirstChildOfClass("Frame")
         if titleBar then
-            titleBar.BackgroundColor3 = theme.topBarColor
+            TweenService:Create(titleBar, TweenInfo.new(0.5), {BackgroundColor3 = theme.topBarColor}):Play()
         end
+        
         currentTheme = themeName
     end
+end
+
+function MainGui.Minimize()
+    minimized = true
+    TweenService:Create(mainFrame, TweenInfo.new(0.3), {Size = UDim2.new(0, 0, 0, 0)}):Play()
+    
+    -- Create minimize button
+    local miniBtn = Instance.new("ImageButton")
+    miniBtn.Size = UDim2.new(0, 45, 0, 45)
+    miniBtn.Position = UDim2.new(0.5, -22.5, 0, 10)
+    miniBtn.BackgroundColor3 = Themes.dark.backgroundColor
+    miniBtn.Image = "rbxthumb://type=Asset&id=112498285326629"
+    miniBtn.Parent = screenGui
+    
+    local miniCorner = Instance.new("UICorner")
+    miniCorner.CornerRadius = UDim.new(0, 8)
+    miniCorner.Parent = miniBtn
+    
+    miniBtn.MouseButton1Click:Connect(function()
+        miniBtn:Destroy()
+        minimized = false
+        TweenService:Create(mainFrame, TweenInfo.new(0.3), {Size = UDim2.new(0, 500, 0, 350)}):Play()
+    end)
+end
+
+function MainGui.ToggleSize()
+    if mainFrame.Size == UDim2.new(0, 500, 0, 350) then
+        TweenService:Create(mainFrame, TweenInfo.new(0.3), {Size = UDim2.new(0, 600, 0, 450), Position = UDim2.new(0.5, -300, 0.5, -225)}):Play()
+    else
+        TweenService:Create(mainFrame, TweenInfo.new(0.3), {Size = UDim2.new(0, 500, 0, 350), Position = UDim2.new(0.5, -250, 0.5, -175)}):Play()
+    end
+end
+
+function MainGui.Close()
+    TweenService:Create(mainFrame, TweenInfo.new(0.3), {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.5, 0)}):Play()
+    wait(0.3)
+    screenGui:Destroy()
+end
+
+function MainGui.AnimateIn()
+    mainFrame.Size = UDim2.new(0, 0, 0, 0)
+    mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+    TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, 500, 0, 350),
+        Position = UDim2.new(0.5, -250, 0.5, -175)
+    }):Play()
 end
 
 function MainGui.ShowNotification(title, text)
