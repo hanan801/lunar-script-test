@@ -11,7 +11,6 @@ local StarterGui = game:GetService("StarterGui")
 -- Variables
 local localPlayer = Players.LocalPlayer
 local modules = {}
-local settings = {}
 
 local screenGui
 local mainFrame
@@ -39,10 +38,11 @@ local Themes = {
     }
 }
 
-function MainGui.Initialize(loadedModules, loadedSettings)
+local currentTheme = "dark"
+local rgbLineMode = true
+
+function MainGui.Initialize(loadedModules)
     modules = loadedModules
-    settings = loadedSettings
-    
     print("🎨 Initializing Main GUI...")
     MainGui.CreateMainGUI()
     return true
@@ -74,7 +74,7 @@ function MainGui.CreateMainGUI()
     stroke.Parent = mainFrame
     
     -- RGB animation
-    if settings.RGBMode then
+    if rgbLineMode then
         local hue = 0
         RunService.Heartbeat:Connect(function(delta)
             hue = (hue + delta * 60) % 360
@@ -268,7 +268,7 @@ function MainGui.CreateMainContent(parent)
     mainContent.Size = UDim2.new(1, 0, 1, 0)
     mainContent.BackgroundTransparency = 1
     mainContent.ScrollBarThickness = 8
-    mainContent.CanvasSize = UDim2.new(0, 0, 0, 600)
+    mainContent.CanvasSize = UDim2.new(0, 0, 0, 630)
     mainContent.Visible = false
     mainContent.Parent = parent
     
@@ -303,12 +303,12 @@ function MainGui.CreateInfoContent(parent)
     container.BackgroundTransparency = 1
     container.Parent = infoContent
     
-    -- Game info
+    -- Game info - Fixed: No MarketplaceService
     local gameInfo = Instance.new("TextLabel")
     gameInfo.Size = UDim2.new(1, -10, 0, 25)
     gameInfo.Position = UDim2.new(0, 5, 0, 5)
     gameInfo.BackgroundTransparency = 1
-    gameInfo.Text = "Game: " .. MarketplaceService:GetProductInfo(game.PlaceId).Name
+    gameInfo.Text = "Game: " .. game.PlaceId
     gameInfo.TextColor3 = Color3.fromRGB(255, 255, 255)
     gameInfo.Font = Enum.Font.Gotham
     gameInfo.TextSize = 14
@@ -357,6 +357,18 @@ function MainGui.CreateInfoContent(parent)
             modules.Main.CopyDiscord()
         end
     end)
+    
+    -- Credits
+    local credits = Instance.new("TextLabel")
+    credits.Size = UDim2.new(1, -10, 0, 60)
+    credits.Position = UDim2.new(0, 5, 0, 150)
+    credits.BackgroundTransparency = 1
+    credits.Text = "Created by: h4000_audio8\nThanks for using Lunar Script!\nVersion: 1.0"
+    credits.TextColor3 = Color3.fromRGB(255, 255, 255)
+    credits.Font = Enum.Font.Gotham
+    credits.TextSize = 12
+    credits.TextXAlignment = Enum.TextXAlignment.Left
+    credits.Parent = container
 end
 
 function MainGui.CreateSettingsContent(parent)
@@ -466,15 +478,15 @@ function MainGui.CreateSettingsContent(parent)
     end)
     
     rgbModeBtn.MouseButton1Click:Connect(function()
-        settings.RGBMode = not settings.RGBMode
-        if settings.RGBMode then
+        rgbLineMode = not rgbLineMode
+        if rgbLineMode then
             rgbModeBtn.Text = "RGB MODE: ON"
             rgbModeBtn.TextColor3 = Color3.fromRGB(100, 255, 100)
         else
             rgbModeBtn.Text = "RGB MODE: OFF"
             rgbModeBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
         end
-        MainGui.ShowNotification("RGB Mode", "RGB mode: " .. tostring(settings.RGBMode))
+        MainGui.ShowNotification("RGB Mode", "RGB mode: " .. tostring(rgbLineMode))
     end)
     
     rejoinBtn.MouseButton1Click:Connect(function()
@@ -545,7 +557,12 @@ function MainGui.ApplyTheme(themeName)
     local theme = Themes[themeName]
     if theme then
         mainFrame.BackgroundColor3 = theme.backgroundColor
-        -- Update other elements as needed
+        -- Update title bar
+        local titleBar = mainFrame:FindFirstChildOfClass("Frame")
+        if titleBar then
+            titleBar.BackgroundColor3 = theme.topBarColor
+        end
+        currentTheme = themeName
     end
 end
 
@@ -555,14 +572,6 @@ function MainGui.ShowNotification(title, text)
         Text = text,
         Duration = 3
     })
-end
-
-function MainGui.GetWalkSpeed()
-    return 16 -- Will be implemented with movement module
-end
-
-function MainGui.GetJumpPower()
-    return 50 -- Will be implemented with movement module
 end
 
 return MainGui
