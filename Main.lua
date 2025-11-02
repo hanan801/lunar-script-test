@@ -1,16 +1,17 @@
--- Lunar Script Core System
+-- Lunar Script Core System - Fixed
 local LunarCore = {
     Version = "2.0.0",
     Author = "hanan801",
-    Modules = {},
-    Players = game:GetService("Players"),
-    RunService = game:GetService("RunService"),
-    UserInputService = game:GetService("UserInputService"),
-    TweenService = game:GetService("TweenService"),
-    HttpService = game:GetService("HttpService")
+    Modules = {}
 }
 
 function LunarCore:Init()
+    self.Players = game:GetService("Players")
+    self.RunService = game:GetService("RunService")
+    self.UserInputService = game:GetService("UserInputService")
+    self.TweenService = game:GetService("TweenService")
+    self.HttpService = game:GetService("HttpService")
+    
     self.LocalPlayer = self.Players.LocalPlayer
     self.Character = self.LocalPlayer.Character or self.LocalPlayer.CharacterAdded:Wait()
     self.Humanoid = self.Character:WaitForChild("Humanoid")
@@ -39,7 +40,7 @@ function LunarCore:Init()
 end
 
 function LunarCore:RegisterModule(name, module)
-    if module and module.Init then
+    if module and type(module.Init) == "function" then
         self.Modules[name] = module
         module:Init(self)
         print("✅ Module Registered: " .. name)
