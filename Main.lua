@@ -36,6 +36,10 @@ local currentSpawn = nil
 local backdoorFound = false
 local backdoorRemote = nil
 
+-- Animation System
+local rgbHue = 0
+local rgbLineMode = true
+
 function Main.Initialize(loadedModules)
     modules = loadedModules
     print("🔧 Initializing Lunar Script...")
@@ -50,6 +54,9 @@ function Main.Initialize(loadedModules)
     
     -- Setup player events
     Main.SetupPlayerEvents()
+    
+    -- Start RGB animation
+    Main.StartRGBAnimation()
     
     -- Create GUI
     if modules.MainGui then
@@ -81,6 +88,15 @@ function Main.SetupPlayerEvents()
             if root then
                 root.CFrame = CFrame.new(currentSpawn.position)
             end
+        end
+    end)
+end
+
+function Main.StartRGBAnimation()
+    RunService.Heartbeat:Connect(function(delta)
+        if rgbLineMode then
+            rgbHue = (rgbHue + delta * 60) % 360
+            -- This will be used by GUI for RGB border
         end
     end)
 end
@@ -151,6 +167,19 @@ end
 
 function Main.IsBackdoorFound()
     return backdoorFound
+end
+
+-- RGB System
+function Main.SetRGBMode(enabled)
+    rgbLineMode = enabled
+end
+
+function Main.GetRGBColor()
+    return Color3.fromHSV(rgbHue/360, 1, 1)
+end
+
+function Main.GetRGBMode()
+    return rgbLineMode
 end
 
 return Main
