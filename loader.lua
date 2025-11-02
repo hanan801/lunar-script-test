@@ -1,31 +1,37 @@
--- Lunar Script Loader - Fixed Version
+-- Lunar Script Loader - Simple Version
 print("🚀 Loading Lunar Script...")
 
--- Load Core first
+-- Load Core langsung
 local Core = loadstring(game:HttpGet("https://raw.githubusercontent.com/hanan801/lunar-script-test/main/Core/Main.lua"))()
 
--- Load UI
-local MainGUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/hanan801/lunar-script-test/main/UI/MainGUI.lua"))()
-
--- Load Modules
-local Movement = loadstring(game:HttpGet("https://raw.githubusercontent.com/hanan801/lunar-script-test/main/Modules/Movement.lua"))()
-local Teleport = loadstring(game:HttpGet("https://raw.githubusercontent.com/hanan801/lunar-script-test/main/Modules/Teleport.lua"))()
-local AntiDie = loadstring(game:HttpGet("https://raw.githubusercontent.com/hanan801/lunar-script-test/main/Modules/AntiDie.lua"))()
-local Backdoor = loadstring(game:HttpGet("https://raw.githubusercontent.com/hanan801/lunar-script-test/main/Modules/Backdoor.lua"))()
-local Executor = loadstring(game:HttpGet("https://raw.githubusercontent.com/hanan801/lunar-script-test/main/Modules/Executor.lua"))()
-
--- Initialize Core
+-- Inisialisasi Core
 Core:Init()
 
--- Create GUI
-MainGUI:Create(Core)
+-- Load dan inisialisasi modules
+local Movement = loadstring(game:HttpGet("https://raw.githubusercontent.com/hanan801/lunar-script-test/main/Modules/Movement.lua"))()
+Movement:Init(Core)
 
--- Register modules
-Core:RegisterModule("Movement", Movement)
-Core:RegisterModule("Teleport", Teleport)
-Core:RegisterModule("AntiDie", AntiDie)
-Core:RegisterModule("Backdoor", Backdoor)
-Core:RegisterModule("Executor", Executor)
+local Teleport = loadstring(game:HttpGet("https://raw.githubusercontent.com/hanan801/lunar-script-test/main/Modules/Teleport.lua"))()
+Teleport:Init(Core)
+
+local AntiDie = loadstring(game:HttpGet("https://raw.githubusercontent.com/hanan801/lunar-script-test/main/Modules/AntiDie.lua"))()
+AntiDie:Init(Core)
+
+local Backdoor = loadstring(game:HttpGet("https://raw.githubusercontent.com/hanan801/lunar-script-test/main/Modules/Backdoor.lua"))()
+Backdoor:Init(Core)
+
+local Executor = loadstring(game:HttpGet("https://raw.githubusercontent.com/hanan801/lunar-script-test/main/Modules/Executor.lua"))()
+Executor:Init(Core)
+
+-- Load UI terakhir
+local MainGUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/hanan801/lunar-script-test/main/UI/MainGUI.lua"))()
+MainGUI:Create(Core, {
+    Movement = Movement,
+    Teleport = Teleport,
+    AntiDie = AntiDie,
+    Backdoor = Backdoor,
+    Executor = Executor
+})
 
 print("✅ Lunar Script Loaded Successfully!")
 return Core
