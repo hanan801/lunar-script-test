@@ -1,7 +1,5 @@
--- Executor Module
-local ExecutorModule = {
-    SavedScripts = {}
-}
+-- Executor Module - Simple
+local ExecutorModule = {}
 
 function ExecutorModule:Init(core)
     self.Core = core
@@ -9,31 +7,15 @@ function ExecutorModule:Init(core)
 end
 
 function ExecutorModule:ExecuteScript(scriptCode)
-    local success, result = pcall(function()
+    local success, err = pcall(function()
         loadstring(scriptCode)()
     end)
     
     if success then
-        self.Core:Notify("Executor", "Script executed successfully!")
-        return true
+        self.Core:Notify("Executor", "Script executed!")
     else
-        self.Core:Notify("Executor Error", "Failed: " .. tostring(result))
-        return false
+        self.Core:Notify("Executor Error", "Failed: " .. tostring(err))
     end
-end
-
-function ExecutorModule:SaveScript(name, scriptCode)
-    self.SavedScripts[name] = scriptCode
-    self.Core:Notify("Executor", "Script saved: " .. name)
-end
-
-function ExecutorModule:LoadScript(name)
-    return self.SavedScripts[name]
-end
-
-function ExecutorModule:ClearScripts()
-    self.SavedScripts = {}
-    self.Core:Notify("Executor", "All scripts cleared!")
 end
 
 return ExecutorModule
