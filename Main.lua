@@ -1,14 +1,22 @@
--- Lunar Script Main Core System
+-- Lunar Script Main System
 local Main = {}
 
 -- Services
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
 local StarterGui = game:GetService("StarterGui")
+local TextService = game:GetService("TextService")
+local Lighting = game:GetService("Lighting")
+local MarketplaceService = game:GetService("MarketplaceService")
 
 -- Variables
 local localPlayer = Players.LocalPlayer
+local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
 local modules = {}
 local settings = {
     Theme = "dark",
@@ -16,9 +24,27 @@ local settings = {
     AutoSave = true
 }
 
+-- Movement variables
+local walkspeedEnabled = false
+local jumppowerEnabled = false
+local infinityJumpEnabled = false
+local antiSlowEnabled = false
+local antiLowJumpEnabled = false
+local flyEnabled = false
+local antiDieEnabled = false
+local showCoordsEnabled = false
+
+-- Spawn system
+local spawnPoints = {}
+local currentSpawn = nil
+
+-- Backdoor variables
+local backdoorFound = false
+local backdoorRemote = nil
+
 function Main.Initialize(loadedModules)
     modules = loadedModules
-    print("🔧 Initializing Lunar Script Core...")
+    print("🔧 Initializing Lunar Script...")
     
     -- Show welcome notification
     StarterGui:SetCore("SendNotification", {
@@ -28,11 +54,10 @@ function Main.Initialize(loadedModules)
         Duration = 5
     })
     
-    -- Setup event handlers
+    -- Setup player events
     Main.SetupPlayerEvents()
-    Main.SetupInputHandlers()
     
-    -- Initialize GUI
+    -- Create GUI
     if modules.MainGui then
         modules.MainGui.Initialize(modules, settings)
     end
@@ -41,59 +66,31 @@ function Main.Initialize(loadedModules)
 end
 
 function Main.SetupPlayerEvents()
-    -- Handle character spawn
-    localPlayer.CharacterAdded:Connect(function(character)
-        Main.OnCharacterSpawn(character)
-    end)
-    
-    if localPlayer.Character then
-        Main.OnCharacterSpawn(localPlayer.Character)
-    end
-end
-
-function Main.SetupInputHandlers()
-    -- Global keybinds
-    UserInputService.InputBegan:Connect(function(input, processed)
-        if processed then return end
+    -- Character added event
+    localPlayer.CharacterAdded:Connect(function(newChar)
+        character = newChar
+        humanoid = newChar:WaitForChild("Humanoid")
         
-        if input.KeyCode == Enum.KeyCode.RightShift then
-            -- Toggle GUI
-            if modules.MainGui then
-                modules.MainGui.ToggleGUI()
+        -- Reapply settings
+        if walkspeedEnabled then
+            local speed = modules.MainGui.GetWalkSpeed()
+            humanoid.WalkSpeed = speed
+        end
+        
+        if jumppowerEnabled then
+            local power = modules.MainGui.GetJumpPower()
+            humanoid.JumpPower = power
+        end
+        
+        -- Teleport to spawn if set
+        if currentSpawn then
+            wait(1)
+            local root = newChar:FindFirstChild("HumanoidRootPart")
+            if root then
+                root.CFrame = CFrame.new(currentSpawn.position)
             end
         end
     end)
-end
-
-function Main.OnCharacterSpawn(character)
-    print("🎭 Character spawned, initializing modules...")
-    
-    -- Initialize movement system
-    if modules.Movement then
-        modules.Movement.Initialize(character)
-    end
-    
-    -- Update GUI dengan character info
-    if modules.MainGui then
-        modules.MainGui.UpdateCharacterInfo(character)
-    end
-end
-
-function Main.GetModule(moduleName)
-    return modules[moduleName]
-end
-
-function Main.GetSettings()
-    return settings
-end
-
-function Main.UpdateSetting(key, value)
-    if settings[key] ~= nil then
-        settings[key] = value
-        print("⚙️ Setting updated: " .. key .. " = " .. tostring(value))
-        return true
-    end
-    return false
 end
 
 function Main.ShowNotification(title, text)
@@ -103,6 +100,39 @@ function Main.ShowNotification(title, text)
         Icon = "rbxthumb://type=Asset&id=112498285326629&w=150&h=150",
         Duration = 3
     })
+end
+
+function Main.CopyDiscord()
+    local clipboard = setclipboard or toclipboard or set_clipboard
+    if clipboard then
+        clipboard("https://discord.gg/MKSBJDFFd")
+        Main.ShowNotification("Discord", "Discord link copied!")
+    else
+        Main.ShowNotification("Error", "Clipboard not available")
+    end
+end
+
+-- Getters for movement values
+function Main.GetWalkSpeed()
+    return 16 -- Default, will be updated from GUI
+end
+
+function Main.GetJumpPower()
+    return 50 -- Default, will be updated from GUI
+end
+
+-- Backdoor functions
+function Main.SetBackdoorFound(remote)
+    backdoorFound = true
+    backdoorRemote = remote
+end
+
+function Main.GetBackdoor()
+    return backdoorRemote
+end
+
+function Main.IsBackdoorFound()
+    return backdoorFound
 end
 
 return Main
