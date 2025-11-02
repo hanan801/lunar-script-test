@@ -1,49 +1,37 @@
--- Movement Module
+-- Movement Module - Fixed
 local MovementModule = {}
 
 function MovementModule:Init(core)
     self.Core = core
     self.Connections = {}
-    
     print("🏃 Movement Module Initialized")
+    return self
 end
 
 function MovementModule:ToggleInfinityJump()
-    self.Core.States.InfinityJump = not self.Core.States.InfinityJump
-    
     if self.Core.States.InfinityJump then
-        self.Connections.jump = self.Core.UserInputService.JumpRequest:Connect(function()
-            if self.Core.States.InfinityJump and self.Core.Humanoid then
-                self.Core.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-            end
-        end)
-        self.Core:Notify("Infinity Jump", "Infinity Jump enabled!")
-    else
+        -- Turn off
         if self.Connections.jump then
             self.Connections.jump:Disconnect()
             self.Connections.jump = nil
         end
-        self.Core:Notify("Infinity Jump", "Infinity Jump disabled!")
+        self.Core.States.InfinityJump = false
+        self.Core:Notify("Infinity Jump", "Disabled!")
+    else
+        -- Turn on
+        self.Connections.jump = self.Core.UserInputService.JumpRequest:Connect(function()
+            if self.Core.Humanoid then
+                self.Core.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+        end)
+        self.Core.States.InfinityJump = true
+        self.Core:Notify("Infinity Jump", "Enabled!")
     end
 end
 
-function MovementModule:ToggleWalkSpeed(enabled, speed)
-    if enabled then
-        self.Core.States.WalkSpeedEnabled = true
-        self.Core.Settings.WalkSpeed = speed or 16
-        
-        if self.Connections.walkSpeed then
-            self.Connections.walkSpeed:Disconnect()
-        end
-        
-        self.Connections.walkSpeed = self.Core.RunService.Heartbeat:Connect(function()
-            if self.Core.States.WalkSpeedEnabled and self.Core.Humanoid then
-                self.Core.Humanoid.WalkSpeed = self.Core.Settings.WalkSpeed
-            end
-        end)
-        self.Core:Notify("Walk Speed", "Walk Speed enabled: " .. self.Core.Settings.WalkSpeed)
-    else
-        self.Core.States.WalkSpeedEnabled = false
+function MovementModule:ToggleWalkSpeed()
+    if self.Core.States.WalkSpeedEnabled then
+        -- Turn off
         if self.Connections.walkSpeed then
             self.Connections.walkSpeed:Disconnect()
             self.Connections.walkSpeed = nil
@@ -51,27 +39,40 @@ function MovementModule:ToggleWalkSpeed(enabled, speed)
         if self.Core.Humanoid then
             self.Core.Humanoid.WalkSpeed = 16
         end
-        self.Core:Notify("Walk Speed", "Walk Speed disabled!")
+        self.Core.States.WalkSpeedEnabled = false
+        self.Core:Notify("Walk Speed", "Disabled!")
+    else
+        -- Turn on
+        local speed = tonumber(self.Core.Settings.WalkSpeed) or 16
+        if self.Connections.walkSpeed then
+            self.Connections.walkSpeed:Disconnect()
+        end
+        self.Connections.walkSpeed = self.Core.RunService.Heartbeat:Connect(function()
+            if self.Core.Humanoid then
+                self.Core.Humanoid.WalkSpeed = speed
+            end
+        end)
+        self.Core.States.WalkSpeedEnabled = true
+        self.Core:Notify("Walk Speed", "Enabled: " .. speed)
     end
 end
 
-function MovementModule:ToggleJumpPower(enabled, power)
-    if enabled then
-        self.Core.States.JumpPowerEnabled = true
-        self.Core.Settings.JumpPower = power or 50
-        
-        if self.Connections.jumpPower then
-            self.Connections.jumpPower:Disconnect()
+function MovementModule:SetWalkSpeed(speed)
+    local numSpeed = tonumber(speed)
+    if numSpeed then
+        self.Core.Settings.WalkSpeed = numSpeed
+        if self.Core.States.WalkSpeedEnabled and self.Core.Humanoid then
+            self.Core.Humanoid.WalkSpeed = numSpeed
         end
-        
-        self.Connections.jumpPower = self.Core.RunService.Heartbeat:Connect(function()
-            if self.Core.States.JumpPowerEnabled and self.Core.Humanoid then
-                self.Core.Humanoid.JumpPower = self.Core.Settings.JumpPower
-            end
-        end)
-        self.Core:Notify("Jump Power", "Jump Power enabled: " .. self.Core.Settings.JumpPower)
+        self.Core:Notify("Walk Speed", "Set to: " .. numSpeed)
     else
-        self.Core.States.JumpPowerEnabled = false
+        self.Core:Notify("Error", "Invalid speed number!")
+    end
+end
+
+function MovementModule:ToggleJumpPower()
+    if self.Core.States.JumpPowerEnabled then
+        -- Turn off
         if self.Connections.jumpPower then
             self.Connections.jumpPower:Disconnect()
             self.Connections.jumpPower = nil
@@ -79,18 +80,35 @@ function MovementModule:ToggleJumpPower(enabled, power)
         if self.Core.Humanoid then
             self.Core.Humanoid.JumpPower = 50
         end
-        self.Core:Notify("Jump Power", "Jump Power disabled!")
+        self.Core.States.JumpPowerEnabled = false
+        self.Core:Notify("Jump Power", "Disabled!")
+    else
+        -- Turn on
+        local power = tonumber(self.Core.Settings.JumpPower) or 50
+        if self.Connections.jumpPower then
+            self.Connections.jumpPower:Disconnect()
+        end
+        self.Connections.jumpPower = self.Core.RunService.Heartbeat:Connect(function()
+            if self.Core.Humanoid then
+                self.Core.Humanoid.JumpPower = power
+            end
+        end)
+        self.Core.States.JumpPowerEnabled = true
+        self.Core:Notify("Jump Power", "Enabled: " .. power)
     end
 end
 
-function MovementModule:ToggleAntiSlow()
-    self.Core.States.AntiSlow = not self.Core.States.AntiSlow
-    self.Core:Notify("Anti Slow", self.Core.States.AntiSlow and "Enabled!" or "Disabled!")
-end
-
-function MovementModule:ToggleAntiLowJump()
-    self.Core.States.AntiLowJump = not self.Core.States.AntiLowJump
-    self.Core:Notify("Anti Low Jump", self.Core.States.AntiLowJump and "Enabled!" or "Disabled!")
+function MovementModule:SetJumpPower(power)
+    local numPower = tonumber(power)
+    if numPower then
+        self.Core.Settings.JumpPower = numPower
+        if self.Core.States.JumpPowerEnabled and self.Core.Humanoid then
+            self.Core.Humanoid.JumpPower = numPower
+        end
+        self.Core:Notify("Jump Power", "Set to: " .. numPower)
+    else
+        self.Core:Notify("Error", "Invalid jump power number!")
+    end
 end
 
 return MovementModule
