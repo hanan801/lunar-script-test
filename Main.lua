@@ -11,20 +11,14 @@ local HttpService = game:GetService("HttpService")
 local StarterGui = game:GetService("StarterGui")
 local TextService = game:GetService("TextService")
 local Lighting = game:GetService("Lighting")
-local MarketplaceService = game:GetService("MarketplaceService")
 
 -- Variables
 local localPlayer = Players.LocalPlayer
 local character = localPlayer.Character or localPlayer.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 local modules = {}
-local settings = {
-    Theme = "dark",
-    RGBMode = true,
-    AutoSave = true
-}
 
--- Movement variables
+-- Movement System Variables
 local walkspeedEnabled = false
 local jumppowerEnabled = false
 local infinityJumpEnabled = false
@@ -34,11 +28,11 @@ local flyEnabled = false
 local antiDieEnabled = false
 local showCoordsEnabled = false
 
--- Spawn system
+-- Spawn System
 local spawnPoints = {}
 local currentSpawn = nil
 
--- Backdoor variables
+-- Backdoor System
 local backdoorFound = false
 local backdoorRemote = nil
 
@@ -59,7 +53,7 @@ function Main.Initialize(loadedModules)
     
     -- Create GUI
     if modules.MainGui then
-        modules.MainGui.Initialize(modules, settings)
+        modules.MainGui.Initialize(modules)
     end
     
     return true
@@ -71,15 +65,13 @@ function Main.SetupPlayerEvents()
         character = newChar
         humanoid = newChar:WaitForChild("Humanoid")
         
-        -- Reapply settings
+        -- Reapply movement settings
         if walkspeedEnabled then
-            local speed = modules.MainGui.GetWalkSpeed()
-            humanoid.WalkSpeed = speed
+            humanoid.WalkSpeed = 16
         end
         
         if jumppowerEnabled then
-            local power = modules.MainGui.GetJumpPower()
-            humanoid.JumpPower = power
+            humanoid.JumpPower = 50
         end
         
         -- Teleport to spawn if set
@@ -112,13 +104,39 @@ function Main.CopyDiscord()
     end
 end
 
--- Getters for movement values
-function Main.GetWalkSpeed()
-    return 16 -- Default, will be updated from GUI
+-- Movement system functions
+function Main.ToggleWalkSpeed(enabled)
+    walkspeedEnabled = enabled
+    if humanoid then
+        humanoid.WalkSpeed = enabled and 16 or 16
+    end
 end
 
-function Main.GetJumpPower()
-    return 50 -- Default, will be updated from GUI
+function Main.ToggleJumpPower(enabled)
+    jumppowerEnabled = enabled
+    if humanoid then
+        humanoid.JumpPower = enabled and 50 or 50
+    end
+end
+
+function Main.ToggleInfinityJump(enabled)
+    infinityJumpEnabled = enabled
+end
+
+function Main.ToggleAntiSlow(enabled)
+    antiSlowEnabled = enabled
+end
+
+function Main.ToggleAntiLowJump(enabled)
+    antiLowJumpEnabled = enabled
+end
+
+function Main.ToggleAntiDie(enabled)
+    antiDieEnabled = enabled
+end
+
+function Main.ToggleShowCoords(enabled)
+    showCoordsEnabled = enabled
 end
 
 -- Backdoor functions
