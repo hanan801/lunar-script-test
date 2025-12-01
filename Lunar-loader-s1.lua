@@ -1,92 +1,53 @@
-task.wait(0.15)
+task.wait(0.1)
 
-local function decrypt_data(encrypted, key)
-    local decrypted = ""
-    for i = 1, #encrypted do
-        local byte = string.byte(encrypted, i)
-        local key_byte = string.byte(key, ((i-1) % #key) + 1)
-        decrypted = decrypted .. string.char(bit32.bxor(byte, key_byte))
+local function verify_loader()
+    if not getgenv().__LUNAR_SESSION_TOKEN then
+        return false
     end
-    return decrypted
+    
+    if not getgenv().__LUNAR_START_TIME then
+        return false
+    end
+    
+    local token = getgenv().__LUNAR_SESSION_TOKEN
+    
+    if type(token) ~= "string" then
+        return false
+    end
+    
+    if #token < 40 then
+        return false
+    end
+    
+    local time_difference = os.time() - getgenv().__LUNAR_START_TIME
+    
+    if time_difference > 8 then
+        return false
+    end
+    
+    return true
 end
 
-if not getgenv().__LUNAR_ENCRYPTED_TOKEN then
+if not verify_loader() then
     game:GetService("Players").LocalPlayer:Kick("loader failed, found a bug? report it now! https://discord.gg/hajjgruEH")
     return
 end
 
-if not getgenv().__LUNAR_SESSION_KEY then
-    game:GetService("Players").LocalPlayer:Kick("loader failed, found a bug? report it now! https://discord.gg/hajjgruEH")
-    return
-end
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
 
-if not getgenv().__LUNAR_TIMESTAMP then
-    game:GetService("Players").LocalPlayer:Kick("loader failed, found a bug? report it now! https://discord.gg/hajjgruEH")
-    return
-end
+local original_kick_function = LocalPlayer.Kick
 
-if not getgenv().__LUNAR_LOADER_HASH then
-    game:GetService("Players").LocalPlayer:Kick("loader failed, found a bug? report it now! https://discord.gg/hajjgruEH")
-    return
-end
-
-local time_diff = os.time() - getgenv().__LUNAR_TIMESTAMP
-if time_diff > 5 then
-    game:GetService("Players").LocalPlayer:Kick("loader failed, found a bug? report it now! https://discord.gg/hajjgruEH")
-    return
-end
-
-local decrypted_token = decrypt_data(getgenv().__LUNAR_ENCRYPTED_TOKEN, getgenv().__LUNAR_SESSION_KEY)
-
-if type(decrypted_token) ~= "string" then
-    game:GetService("Players").LocalPlayer:Kick("loader failed, found a bug? report it now! https://discord.gg/hajjgruEH")
-    return
-end
-
-if #decrypted_token ~= 128 then
-    game:GetService("Players").LocalPlayer:Kick("loader failed, found a bug? report it now! https://discord.gg/hajjgruEH")
-    return
-end
-
-local players = game:GetService("Players")
-local local_player = players.LocalPlayer
-
-local original_kick = local_player.Kick
-local_player.Kick = function(self, reason)
+LocalPlayer.Kick = function(self, reason)
     if type(reason) == "string" then
-        local allowed_patterns = {"loader failed", "discord.gg/hajjgruEH", "found a bug"}
-        for _, pattern in ipairs(allowed_patterns) do
-            if string.find(reason, pattern) then
-                return original_kick(self, reason)
-            end
+        if reason:find("loader failed") or reason:find("discord.gg/hajjgruEH") then
+            return original_kick_function(self, reason)
         end
     end
+    
     return nil
 end
 
-local environment_check = pcall(function()
-    local stack = debug.traceback()
-    local blacklisted = {"hookfunction", "detour", "inject", "bypass", "debug"}
-    for _, word in ipairs(blacklisted) do
-        if string.find(string.lower(stack), word) then
-            error("Injection detected")
-        end
-    end
-end)
+getgenv().__LUNAR_STAGE_TWO_COMPLETE = true
 
-if not environment_check then
-    local_player:Kick("loader failed, found a bug? report it now! https://discord.gg/hajjgruEH")
-    return
-end
-
-getgenv().__LUNAR_STAGE2_VALIDATED = true
-getgenv().__LUNAR_STAGE2_TIMESTAMP = os.time()
-
-local load_success, load_error = pcall(function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/hanan801/LunarScript/main/Lunar-Script.lua"))()
-end)
-
-if not load_success then
-    task.wait(0.3)
-    local_player:Kick("loader failed, found a bug? report it now! https://discord.gg/hajjgruEH")
-end
+loadstring(game:HttpGet("https://raw.githubusercontent.com/hanan801/LunarScript/main/Lunar-Script.lua"))()
