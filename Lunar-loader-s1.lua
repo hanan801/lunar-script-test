@@ -1,53 +1,39 @@
-task.wait(0.1)
-
-local function verify_loader()
-    if not getgenv().__LUNAR_SESSION_TOKEN then
-        return false
+if not getgenv().__LUNAR_START_TIME then
+    if game and game:GetService("Players") and game:GetService("Players").LocalPlayer then
+        game:GetService("Players").LocalPlayer:Kick("loader failed, found a bug? report it now! https://discord.gg/hajjgruEH")
     end
-    
-    if not getgenv().__LUNAR_START_TIME then
-        return false
-    end
-    
-    local token = getgenv().__LUNAR_SESSION_TOKEN
-    
-    if type(token) ~= "string" then
-        return false
-    end
-    
-    if #token < 40 then
-        return false
-    end
-    
-    local time_difference = os.time() - getgenv().__LUNAR_START_TIME
-    
-    if time_difference > 8 then
-        return false
-    end
-    
-    return true
-end
-
-if not verify_loader() then
-    game:GetService("Players").LocalPlayer:Kick("loader failed, found a bug? report it now! https://discord.gg/hajjgruEH")
     return
 end
 
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-local original_kick_function = LocalPlayer.Kick
-
-LocalPlayer.Kick = function(self, reason)
-    if type(reason) == "string" then
-        if reason:find("loader failed") or reason:find("discord.gg/hajjgruEH") then
-            return original_kick_function(self, reason)
-        end
+if not getgenv().__LUNAR_VERIFY_CODE then
+    if game and game:GetService("Players") and game:GetService("Players").LocalPlayer then
+        game:GetService("Players").LocalPlayer:Kick("loader failed, found a bug? report it now! https://discord.gg/hajjgruEH")
     end
-    
-    return nil
+    return
 end
 
-getgenv().__LUNAR_STAGE_TWO_COMPLETE = true
+if os.time() - getgenv().__LUNAR_START_TIME > 15 then
+    if game and game:GetService("Players") and game:GetService("Players").LocalPlayer then
+        game:GetService("Players").LocalPlayer:Kick("loader failed, found a bug? report it now! https://discord.gg/hajjgruEH")
+    end
+    return
+end
 
-loadstring(game:HttpGet("https://raw.githubusercontent.com/hanan801/LunarScript/main/Lunar-Script.lua"))()
+local verify_code = getgenv().__LUNAR_VERIFY_CODE
+if type(verify_code) ~= "string" then
+    if game and game:GetService("Players") and game:GetService("Players").LocalPlayer then
+        game:GetService("Players").LocalPlayer:Kick("loader failed, found a bug? report it now! https://discord.gg/hajjgruEH")
+    end
+    return
+end
+
+if not verify_code:find("LUNAR_") then
+    if game and game:GetService("Players") and game:GetService("Players").LocalPlayer then
+        game:GetService("Players").LocalPlayer:Kick("loader failed, found a bug? report it now! https://discord.gg/hajjgruEH")
+    end
+    return
+end
+
+if game and game:GetService("Players") and game:GetService("Players").LocalPlayer then
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/hanan801/LunarScript/main/Lunar-Script.lua"))()
+end
